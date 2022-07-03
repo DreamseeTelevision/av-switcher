@@ -1,3 +1,5 @@
+import {config} from 'dotenv';
+
 import svelte from 'rollup-plugin-svelte';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
@@ -7,6 +9,7 @@ import postcss from 'rollup-plugin-postcss';
 import purgecss from '@fullhuman/postcss-purgecss';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import html from '@rollup/plugin-html';
+import replace from '@rollup/plugin-replace';
 
 const production = !process.env.ROLLUP_WATCH;
 const version = require('fs').existsSync('.git') ? String(require('child_process').execSync('git rev-parse --short HEAD')).trim() : 'static'; // append short git commit to bundles
@@ -27,6 +30,11 @@ export default {
 		}),
 
 		postcss({ extract: true, plugins: (production ? [purgecss({ content: ["./src/**/*.svelte", "./rollup.config.js"], safelist: [/svelte-/] })] : []), minimize: production }),
+
+		replace({   
+			preventAssignment: true,
+			'process.env.OBS_HOST': JSON.stringify(process.env.OBS_HOST)
+		}),
 
 		commonjs(),
 		nodePolyfills(),

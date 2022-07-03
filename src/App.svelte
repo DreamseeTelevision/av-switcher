@@ -15,6 +15,9 @@
   import ProfileSelect from './ProfileSelect.svelte';
   import SceneCollectionSelect from './SceneCollectionSelect.svelte';
 
+  // Constants
+  const obs_host = process.env.OBS_HOST;
+
   onMount(async () => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/service-worker.js');
@@ -142,7 +145,7 @@
   }
 
   async function connect() {
-    address = address || 'obs-ws.drmse:4444';
+    address = obs_host;
     let secure = location.protocol === 'https:' || address.endsWith(':443');
     if (address.indexOf('://') !== -1) {
       let url = new URL(address);
