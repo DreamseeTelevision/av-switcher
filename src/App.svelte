@@ -221,7 +221,9 @@
 <nav class="navbar is-primary" aria-label="main navigation">
   <div class="navbar-brand">
     <a class="navbar-item is-size-4 has-text-weight-bold" href="/">
-      <img src="favicon.png" alt="AV Switcher" class="rotate" /></a>
+      <img src="favicon.png" alt="AV Switcher" class="rotate" />
+      <img height="25px" src="https://cdn.dreamsee.tv/img/logo/dreamsee.png" alt="dreamsee.tv" />
+    </a>
 
     <!-- svelte-ignore a11y-missing-attribute -->
     <button class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navmenu">
