@@ -142,7 +142,7 @@
   }
 
   async function connect() {
-    address = address || 'localhost:4444';
+    address = address || 'obs-ws.drmse:4444';
     let secure = location.protocol === 'https:' || address.endsWith(':443');
     if (address.indexOf('://') !== -1) {
       let url = new URL(address);
@@ -162,7 +162,7 @@
   async function disconnect() {
     await obs.disconnect();
     connected = false;
-    errorMessage = 'Disconnected';
+    errorMessage = 'Déconnecté';
   }
 
   async function onKeyup(event) {
@@ -176,17 +176,17 @@
   obs.on('ConnectionClosed', () => {
     connected = false;
     window.history.pushState('', document.title, window.location.pathname + window.location.search); // Remove the hash
-    console.log('Connection closed');
+    console.log('Connexion rompue');
   });
 
   obs.on('AuthenticationSuccess', async () => {
-    console.log('Connected');
+    console.log('Connexion établie');
     connected = true;
     document.location.hash = address; // For easy bookmarking
     const version = (await sendCommand('GetVersion')).obsWebsocketVersion || '';
     console.log('OBS-websocket version:', version);
     if(compareVersions(version, OBS_WEBSOCKET_LATEST_VERSION) < 0) {
-      alert('You are running an outdated OBS-websocket (version ' + version + '), please upgrade to the latest version for full compatibility.');
+      alert('Visiblement nous utilisons une ancienne version de OBS-websocket (version ' + version + '), il serait temps de contacter Michel.');
     }
     await sendCommand('SetHeartbeat', { enable: true });
     let data = await sendCommand('GetStudioModeStatus');
@@ -215,13 +215,13 @@
 </script>
 
 <svelte:head>
-  <title>OBS-web remote control</title>
+  <title>AV Switcher ─ Dreamsee Télévision</title>
 </svelte:head>
 
 <nav class="navbar is-primary" aria-label="main navigation">
   <div class="navbar-brand">
     <a class="navbar-item is-size-4 has-text-weight-bold" href="/">
-      <img src="favicon.png" alt="OBS-web" class="rotate" /></a>
+      <img src="favicon.png" alt="AV Switcher" class="rotate" /></a>
 
     <!-- svelte-ignore a11y-missing-attribute -->
     <button class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navmenu">
@@ -239,64 +239,64 @@
           {#if connected}
             <button class="button is-info is-light" disabled>
               {#if heartbeat}
-                {Math.round(heartbeat.stats.fps)} fps, {Math.round(heartbeat.stats['cpu-usage'])}% CPU, {heartbeat.stats['output-skipped-frames']} skipped frames
-              {:else}Connected{/if}
+                {Math.round(heartbeat.stats.fps)} fps, {Math.round(heartbeat.stats['cpu-usage'])}% CPU, {heartbeat.stats['output-skipped-frames']} images perdues
+              {:else}Connecté{/if}
             </button>
             {#if heartbeat && heartbeat.streaming}
-              <button class="button is-danger" on:click={stopStream} title="Stop Stream">
+              <button class="button is-danger" on:click={stopStream} title="ARRÊT DIFF">
                 <span class="icon"><Icon path={mdiAccessPointOff} /></span>
                 <span>{formatTime(heartbeat.totalStreamTime)}</span>
               </button>
             {:else}
-              <button class="button is-danger is-light" on:click={startStream} title="Start Stream">
+              <button class="button is-danger is-light" on:click={startStream} title="DÉMARRER DIFF">
                 <span class="icon"><Icon path={mdiAccessPoint} /></span>
               </button>
             {/if}
             {#if heartbeat && heartbeat.recording}
               {#if heartbeat.recordingPaused}
-                <button class="button is-danger" on:click={resumeRecording} title="Resume Recording">
+                <button class="button is-danger" on:click={resumeRecording} title="Reprendre enregistrement">
                   <span class="icon"><Icon path={mdiPlayPause} /></span>
                 </button>
               {:else}
-                <button class="button is-success" on:click={pauseRecording} title="Pause Recording">
+                <button class="button is-success" on:click={pauseRecording} title="Pause enregistrement">
                   <span class="icon"><Icon path={mdiPause} /></span>
                 </button>
               {/if}
-              <button class="button is-danger" on:click={stopRecording} title="Stop Recording">
+              <button class="button is-danger" on:click={stopRecording} title="Arrêt enregistrement">
                 <span class="icon"><Icon path={mdiStop} /></span>
                 <span>{formatTime(heartbeat.totalRecordTime)}</span>
               </button>
             {:else}
-              <button class="button is-danger is-light" on:click={startRecording} title="Start Recording">
+              <button class="button is-danger is-light" on:click={startRecording} title="Démarrer enregistrement">
                 <span class="icon"><Icon path={mdiRecord} /></span>
               </button>
             {/if}
-            <button class:is-light={!isStudioMode} class="button is-link" on:click={toggleStudioMode} title="Toggle Studio Mode">
+            <button class:is-light={!isStudioMode} class="button is-link" on:click={toggleStudioMode} title="Activer Mode Studio">
               <span class="icon"><Icon path={mdiBorderVertical} /></span>
             </button>
-            <button class:is-light={!isSceneOnTop} class="button is-link" on:click={switchSceneView} title="Show Scene on Top">
+            <button class:is-light={!isSceneOnTop} class="button is-link" on:click={switchSceneView} title="Voir scène en haut">
               <span class="icon"><Icon path={mdiArrowSplitHorizontal} /></span>
             </button>
-            <button class:is-light={!editable} class="button is-link" title="Edit Scenes" on:click={()=>(editable=!editable)}>
+            <button class:is-light={!editable} class="button is-link" title="Modifier scènes" on:click={()=>(editable=!editable)}>
               <span class="icon">
                 <Icon path={editable ? mdiImageEditOutline : mdiImageEdit} />
               </span>
             </button>
-            <button class:is-light={!isIconMode} class="button is-link" title="Show Scenes as Icons" on:click={()=>(isIconMode=!isIconMode)}>
+            <button class:is-light={!isIconMode} class="button is-link" title="Voir scènes en icônes" on:click={()=>(isIconMode=!isIconMode)}>
               <span class="icon">
                 <Icon path={isIconMode ? mdiSquareRoundedBadgeOutline : mdiSquareRoundedBadge} />
               </span>
             </button>
             <ProfileSelect />
             <SceneCollectionSelect />
-            <button class="button is-danger is-light" on:click={disconnect} title="Disconnect">
+            <button class="button is-danger is-light" on:click={disconnect} title="Se déconnecter">
               <span class="icon"><Icon path={mdiConnection} /></span>
             </button>
           {:else}
-            <button class="button is-danger" disabled>{errorMessage || 'Disconnected'}</button>
+            <button class="button is-danger" disabled>{errorMessage || 'Déconnecté'}</button>
           {/if}
           <!-- svelte-ignore a11y-missing-attribute -->
-          <button class:is-light={!isFullScreen} class="button is-link" on:click={toggleFullScreen} title="Toggle Fullscreen">
+          <button class:is-light={!isFullScreen} class="button is-link" on:click={toggleFullScreen} title="Activer Mode Plein Écran">
             <span class="icon">
               <Icon path={isFullScreen ? mdiFullscreenExit : mdiFullscreen} />
             </span>
@@ -324,48 +324,32 @@
       {/each}
     {:else}
       <h1 class="subtitle">
-        Welcome to
-        <strong>OBS-web</strong>
-        - the easiest way to control
-        <a href="https://obsproject.com/" target="_blank">OBS</a>
-        remotely!
+        Bienvenue sur 
+        <strong>AV Switcher</strong>
+        - Panneau de gestion de l'encodeur de la Dreamsee Télévision
       </h1>
+    
+      <div class="notification is-danger">
+          L'outil est réservé <strong>uniquement</strong> aux personnes ayant l'autorisation de l'équipe technique.
+		      <br>Cette version de AV Switcher est en développement, des améliorations et mises à jours sont prévus.
+          <br><br>
+          <strong><a href="mailto:contact+avmystery@dreamsee.tv">
+          Si tu as rien à faire ici (ou que tu as trouvé "mystérieusement" cette porte) je penses que tu devrais travailler avec nous
+          </a></strong> !
+      </div>
 
-      {#if document.location.protocol === 'https:'}
-        <div class="notification is-danger">
-          You are checking this page on a secure HTTPS connection. That's great, but it means you can
-          <strong>only</strong>
-          connect to WSS (secure websocket) addresses, for example OBS exposed with
-          <a href="https://ngrok.com/">ngrok</a>
-          or
-          <a href="https://pagekite.net/">pagekite</a>
-          . If you want to connect to a local OBS instance,
-          <strong>
-            <a href="http://{document.location.hostname}{document.location.port ? ':' + document.location.port : ''}{document.location.pathname}">
-              please click here to load the non-secure version of this page
-            </a>
-          </strong>
-          .
-        </div>
-      {/if}
-
-      <p>To get started, enter your OBS host:port below and click "connect".</p>
+      <p>Pour démarrer la session, inscris le mot de passe ci-dessous et appuies sur le bouton "Se connecter".</p>
 
       <div class="field is-grouped">
         <p class="control is-expanded">
-          <input id="host" on:keyup={onKeyup} bind:value={address} class="input" type="text" placeholder="localhost:4444" />
-          <input id="password" on:keyup={onKeyup} bind:value={password} class="input" type="password" placeholder="password (leave empty if you have disabled authentication)" />
+          <!--<input id="host" on:keyup={onKeyup} bind:value={address} class="input" type="text" placeholder="localhost:4444" />-->
+          <input id="password" on:keyup={onKeyup} bind:value={password} class="input" type="password" placeholder="Mot de passe" />
         </p>
         <p class="control">
-          <button on:click={connect} class="button is-success">Connect</button>
+          <button on:click={connect} class="button is-success">Se connecter</button>
         </p>
 
       </div>
-      <p class="help">
-        Make sure that the
-        <a href="https://github.com/Palakis/obs-websocket/releases" target="_blank">obs-websocket 4.x.x plugin</a>
-        is installed and enabled.
-      </p>
     {/if}
   </div>
 
@@ -373,13 +357,12 @@
 
 <footer class="footer">
   <div class="content has-text-centered">
-    <p>
-      <strong>OBS-web</strong>
-      by
-      <a href="https://niekvandermaas.nl/">Niek van der Maas</a>
-      &mdash; see
+    <p style="color:black">
+      <strong>AV Switcher, un fork de OBS-web</strong>
+      conçu originalement par <a href="https://niekvandermaas.nl/">Niek van der Maas</a>
+      &mdash; Le repository 
       <a href="https://github.com/Niek/obs-web">GitHub</a>
-      for source code.
+      originale est disponible.
     </p>
   </div>
 </footer>
