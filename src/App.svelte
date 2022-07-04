@@ -347,7 +347,7 @@
 
       <div class="field is-grouped">
         <p class="control is-expanded">
-          <!--<input id="host" on:keyup={onKeyup} bind:value={address} class="input" type="text" placeholder="localhost:4444" />-->
+          <input id="host" on:keyup={onKeyup} bind:value={address} class="input" type="text" placeholder="localhost:4444" />
           <input id="password" on:keyup={onKeyup} bind:value={password} class="input" type="password" placeholder="Mot de passe" />
         </p>
         <p class="control">
