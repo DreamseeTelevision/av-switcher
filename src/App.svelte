@@ -145,7 +145,7 @@
   }
 
   async function connect() {
-    address = obs_host;
+    address = address || 'encoder-obs-wss.internal.voistesreves.net';
     let secure = location.protocol === 'https:' || address.endsWith(':443');
     if (address.indexOf('://') !== -1) {
       let url = new URL(address);
